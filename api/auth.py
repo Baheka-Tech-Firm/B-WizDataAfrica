@@ -1,7 +1,8 @@
 import logging
 import secrets
 from datetime import datetime, timedelta
-from models import User
+from models import User, APIToken
+from app import db
 
 logger = logging.getLogger(__name__)
 
@@ -15,9 +16,7 @@ class TokenAuth:
         Args:
             db_session: Optional SQLAlchemy database session, used for testing
         """
-        self.db_session = db_session
-        # In-memory token store: {token: {'user_id': id, 'expires': datetime}}
-        self.tokens = {}
+        self.db_session = db_session or db.session
     
     def generate_token(self, user, expiration=None):
         """
@@ -35,65 +34,71 @@ class TokenAuth:
             expiration = current_app.config.get('API_TOKEN_EXPIRATION', 604800)  # Default 7 days
         
         # Generate a random token
-        token = secrets.token_urlsafe(32)
+        token_str = secrets.token_urlsafe(32)
         
-        # Store token info
-        expires = datetime.now() + timedelta(seconds=expiration)
-        self.tokens[token] = {
-            'user_id': user.id,
-            'expires': expires
-        }
+        # Calculate expiration date
+        expires_at = datetime.utcnow() + timedelta(seconds=expiration)
         
-        logger.debug(f"Generated token for user {user.id}, expires {expires}")
-        return token
+        # Create a database token
+        token = APIToken(token=token_str, user_id=user.id, expires_at=expires_at)
+        self.db_session.add(token)
+        self.db_session.commit()
+        
+        logger.debug(f"Generated token for user {user.id}, expires {expires_at}")
+        return token_str
     
-    def validate_token(self, token):
+    def validate_token(self, token_str):
         """
         Validate a token and return the associated user.
         
         Args:
-            token: Token string to validate
+            token_str: Token string to validate
             
         Returns:
             User: User instance if token is valid, None otherwise
         """
-        if token not in self.tokens:
-            logger.debug(f"Token not found: {token[:10]}...")
-            return None
+        # Find token in database
+        token = self.db_session.query(APIToken).filter_by(token=token_str).first()
         
-        token_info = self.tokens[token]
+        if not token:
+            logger.debug(f"Token not found: {token_str[:10]}...")
+            return None
         
         # Check expiration
-        if token_info['expires'] < datetime.now():
-            logger.debug(f"Token expired: {token[:10]}...")
+        if token.is_expired():
+            logger.debug(f"Token expired: {token_str[:10]}...")
             # Clean up expired token
-            del self.tokens[token]
+            self.db_session.delete(token)
+            self.db_session.commit()
             return None
         
-        # Get user
-        from app import db
-        user = db.session.query(User).get(token_info['user_id'])
+        # Return the associated user
+        user = token.user
         if not user:
-            logger.warning(f"Token refers to non-existent user: {token_info['user_id']}")
+            logger.warning(f"Token refers to non-existent user: {token.user_id}")
             # Clean up invalid token
-            del self.tokens[token]
+            self.db_session.delete(token)
+            self.db_session.commit()
             return None
         
         return user
     
-    def revoke_token(self, token):
+    def revoke_token(self, token_str):
         """
         Revoke a token.
         
         Args:
-            token: Token string to revoke
+            token_str: Token string to revoke
             
         Returns:
             bool: True if token was revoked, False if token wasn't found
         """
-        if token in self.tokens:
-            del self.tokens[token]
-            logger.debug(f"Revoked token: {token[:10]}...")
+        token = self.db_session.query(APIToken).filter_by(token=token_str).first()
+        
+        if token:
+            self.db_session.delete(token)
+            self.db_session.commit()
+            logger.debug(f"Revoked token: {token_str[:10]}...")
             return True
         return False
     
@@ -107,16 +112,12 @@ class TokenAuth:
         Returns:
             int: Number of tokens revoked
         """
-        count = 0
-        tokens_to_remove = []
+        tokens = self.db_session.query(APIToken).filter_by(user_id=user_id).all()
+        count = len(tokens)
         
-        for token, info in self.tokens.items():
-            if info['user_id'] == user_id:
-                tokens_to_remove.append(token)
-                count += 1
+        for token in tokens:
+            self.db_session.delete(token)
         
-        for token in tokens_to_remove:
-            del self.tokens[token]
-        
+        self.db_session.commit()
         logger.debug(f"Revoked {count} tokens for user {user_id}")
         return count

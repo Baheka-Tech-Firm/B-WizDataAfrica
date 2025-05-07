@@ -11,6 +11,23 @@ class User(UserMixin, db.Model):
     is_admin = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime)
+    
+    # Relationship with API tokens
+    tokens = db.relationship('APIToken', backref='user', lazy=True, cascade='all, delete-orphan')
+    
+class APIToken(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    expires_at = db.Column(db.DateTime, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def is_expired(self):
+        """Check if the token is expired."""
+        return datetime.utcnow() > self.expires_at
+    
+    def __repr__(self):
+        return f'<APIToken {self.token[:8]}... expires: {self.expires_at}>'
 
 class Exchange(db.Model):
     id = db.Column(db.Integer, primary_key=True)
