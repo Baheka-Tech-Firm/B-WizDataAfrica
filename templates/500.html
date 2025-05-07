@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Server Error - African Market Data Platform{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center my-5">
+    <div class="col-md-8 col-lg-6 text-center">
+        <div class="py-5">
+            <h1 class="display-1">500</h1>
+            <div class="mb-4">
+                <i class="fas fa-exclamation-triangle fa-4x text-warning"></i>
+            </div>
+            <h2 class="mb-4">Internal Server Error</h2>
+            <p class="lead mb-4">We're sorry, something went wrong on our server. Our team has been notified and we're working to fix the issue.</p>
+            <div class="d-flex justify-content-center">
+                <a href="{{ url_for('index') }}" class="btn btn-primary me-2">
+                    <i class="fas fa-home me-2"></i>Return Home
+                </a>
+                <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Go Back
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

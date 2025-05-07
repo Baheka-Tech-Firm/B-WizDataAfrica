@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Stocks - African Market Data Platform{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="mb-3">
+                    {% if current_exchange %}
+                    {{ current_exchange.name }} Stocks
+                    {% else %}
+                    All Stocks
+                    {% endif %}
+                </h1>
+                <p class="lead">Browse and search stocks across African exchanges.</p>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="dropdown me-2">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="exchangeFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        {% if current_exchange %}
+                        {{ current_exchange.name }}
+                        {% else %}
+                        All Exchanges
+                        {% endif %}
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="exchangeFilterDropdown">
+                        <li><a class="dropdown-item" href="{{ url_for('stocks') }}">All Exchanges</a></li>
+                        {% for exchange in exchanges %}
+                        <li><a class="dropdown-item" href="{{ url_for('stocks', exchange_id=exchange.id) }}">{{ exchange.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#stockFilterModal">
+                    <i class="fas fa-filter me-1"></i> Filter
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search and Filter Box -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" class="form-control" id="searchStocks" placeholder="Search by ticker or company name...">
+                </div>
+            </div>
+            <div class="col-md-4 d-flex">
+                <select class="form-select me-2" id="sectorFilter">
+                    <option value="">All Sectors</option>
+                    <option value="Financial">Financial</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Consumer">Consumer</option>
+                    <option value="Industrial">Industrial</option>
+                    <option value="Energy">Energy</option>
+                    <option value="Materials">Materials</option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Telecommunications">Telecommunications</option>
+                </select>
+                <select class="form-select" id="sortBy">
+                    <option value="name_asc">Name (A-Z)</option>
+                    <option value="name_desc">Name (Z-A)</option>
+                    <option value="ticker_asc">Ticker (A-Z)</option>
+                    <option value="ticker_desc">Ticker (Z-A)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stocks Table -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" id="stocksTable">
+                <thead class="table-light sticky-top">
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Company Name</th>
+                        <th>Sector</th>
+                        <th>Exchange</th>
+                        <th>Last Price</th>
+                        <th>Change</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if stocks %}
+                        {% for stock in stocks %}
+                        <tr data-ticker="{{ stock.ticker }}" data-exchange="{{ stock.exchange.code }}" data-sector="{{ stock.sector or '' }}">
+                            <td><strong>{{ stock.ticker }}</strong></td>
+                            <td>{{ stock.name }}</td>
+                            <td>{{ stock.sector or 'N/A' }}</td>
+                            <td>{{ stock.exchange.code }}</td>
+                            <td class="stock-price" data-ticker="{{ stock.ticker }}" data-exchange="{{ stock.exchange.code }}">Loading...</td>
+                            <td class="stock-change" data-ticker="{{ stock.ticker }}" data-exchange="{{ stock.exchange.code }}">-</td>
+                            <td>
+                                <a href="{{ url_for('stock_detail', ticker=stock.ticker) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-chart-line"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4">No stocks found. Try adjusting your filters.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- No Results Message (hidden by default) -->
+<div id="noResultsMessage" class="alert alert-info text-center my-4" style="display: none;">
+    No stocks match your search criteria. Try different keywords or filters.
+</div>
+
+<!-- Filter Modal -->
+<div class="modal fade" id="stockFilterModal" tabindex="-1" aria-labelledby="stockFilterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="stockFilterModalLabel">Advanced Filters</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="advancedFilterForm">
+                    <div class="mb-3">
+                        <label for="exchangeSelect" class="form-label">Exchange</label>
+                        <select class="form-select" id="exchangeSelect">
+                            <option value="">All Exchanges</option>
+                            {% for exchange in exchanges %}
+                            <option value="{{ exchange.code }}" {% if current_exchange and current_exchange.id == exchange.id %}selected{% endif %}>{{ exchange.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="sectorSelect" class="form-label">Sector</label>
+                        <select class="form-select" id="sectorSelect">
+                            <option value="">All Sectors</option>
+                            <option value="Financial">Financial</option>
+                            <option value="Technology">Technology</option>
+                            <option value="Consumer">Consumer</option>
+                            <option value="Industrial">Industrial</option>
+                            <option value="Energy">Energy</option>
+                            <option value="Materials">Materials</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Telecommunications">Telecommunications</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="priceRange" class="form-label">Price Range</label>
+                        <div class="d-flex align-items-center">
+                            <input type="number" class="form-control" id="minPrice" placeholder="Min">
+                            <span class="mx-2">to</span>
+                            <input type="number" class="form-control" id="maxPrice" placeholder="Max">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="sortOrder" class="form-label">Sort By</label>
+                        <select class="form-select" id="sortOrder">
+                            <option value="name_asc">Name (A-Z)</option>
+                            <option value="name_desc">Name (Z-A)</option>
+                            <option value="ticker_asc">Ticker (A-Z)</option>
+                            <option value="ticker_desc">Ticker (Z-A)</option>
+                            <option value="price_asc">Price (Low to High)</option>
+                            <option value="price_desc">Price (High to Low)</option>
+                            <option value="change_asc">Change % (Low to High)</option>
+                            <option value="change_desc">Change % (High to Low)</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="resetFilters">Reset Filters</button>
+                <button type="button" class="btn btn-primary" id="applyFilters" data-bs-dismiss="modal">Apply Filters</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/stocks.js') }}"></script>
+{% endblock %}

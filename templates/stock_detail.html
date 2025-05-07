@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block title %}{{ stock.ticker }} - {{ stock.name }} - African Market Data Platform{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('stocks') }}">Stocks</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ stock.ticker }}</li>
+            </ol>
+        </nav>
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h1 class="mb-1">{{ stock.name }} <small class="text-muted">({{ stock.ticker }})</small></h1>
+                <p class="text-muted">{{ stock.exchange.name }} • {{ stock.sector or 'Sector N/A' }}</p>
+            </div>
+            <div class="text-end">
+                <div class="fs-3 mb-1" id="current-price">
+                    {% if prices and prices|length > 0 %}
+                    {{ prices[-1].close_price }} {{ stock.currency }}
+                    {% else %}
+                    - {{ stock.currency }}
+                    {% endif %}
+                </div>
+                <div id="price-change" class="fs-5 
+                    {% if prices and prices|length > 0 and prices[-1].change_percent %}
+                        {% if prices[-1].change_percent > 0 %}text-success{% elif prices[-1].change_percent < 0 %}text-danger{% endif %}
+                    {% endif %}">
+                    {% if prices and prices|length > 0 and prices[-1].change_percent %}
+                        {% if prices[-1].change_percent > 0 %}+{% endif %}{{ prices[-1].change_percent }}%
+                    {% else %}
+                    -
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Price History</h5>
+                    <div class="btn-group" role="group" aria-label="Chart period">
+                        <button type="button" class="btn btn-sm btn-outline-secondary active" data-period="1M">1M</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-period="3M">3M</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-period="6M">6M</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-period="1Y">1Y</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-period="ALL">All</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="position: relative; height:350px;">
+                    <canvas id="priceHistoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="card-title mb-0">Stock Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-5 text-muted">Ticker</div>
+                    <div class="col-7 text-end">{{ stock.ticker }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-5 text-muted">Exchange</div>
+                    <div class="col-7 text-end">{{ stock.exchange.name }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-5 text-muted">Currency</div>
+                    <div class="col-7 text-end">{{ stock.currency }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-5 text-muted">Sector</div>
+                    <div class="col-7 text-end">{{ stock.sector or 'N/A' }}</div>
+                </div>
+                {% if stock.market_cap %}
+                <div class="row mb-2">
+                    <div class="col-5 text-muted">Market Cap</div>
+                    <div class="col-7 text-end">{{ "{:,.0f}".format(stock.market_cap) }} {{ stock.currency }}</div>
+                </div>
+                {% endif %}
+                {% if stock.outstanding_shares %}
+                <div class="row mb-2">
+                    <div class="col-5 text-muted">Shares</div>
+                    <div class="col-7 text-end">{{ "{:,.0f}".format(stock.outstanding_shares) }}</div>
+                </div>
+                {% endif %}
+                {% if stock.website %}
+                <div class="row mb-2">
+                    <div class="col-5 text-muted">Website</div>
+                    <div class="col-7 text-end">
+                        <a href="{{ stock.website }}" target="_blank">Visit <i class="fas fa-external-link-alt fa-sm"></i></a>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="row mb-2">
+                    <div class="col-5 text-muted">Last Updated</div>
+                    <div class="col-7 text-end">{{ stock.last_updated.strftime('%d %b %Y') }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="card-title mb-0">Price Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-5 text-muted">Open</div>
+                    <div class="col-7 text-end" id="stat-open">
+                        {% if prices and prices|length > 0 and prices[-1].open_price %}
+                        {{ prices[-1].open_price }} {{ stock.currency }}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-5 text-muted">High</div>
+                    <div class="col-7 text-end" id="stat-high">
+                        {% if prices and prices|length > 0 and prices[-1].high_price %}
+                        {{ prices[-1].high_price }} {{ stock.currency }}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-5 text-muted">Low</div>
+                    <div class="col-7 text-end" id="stat-low">
+                        {% if prices and prices|length > 0 and prices[-1].low_price %}
+                        {{ prices[-1].low_price }} {{ stock.currency }}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-5 text-muted">Volume</div>
+                    <div class="col-7 text-end" id="stat-volume">
+                        {% if prices and prices|length > 0 and prices[-1].volume %}
+                        {{ "{:,.0f}".format(prices[-1].volume) }}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-5 text-muted">Day Change</div>
+                    <div class="col-7 text-end" id="stat-change">
+                        {% if prices and prices|length > 0 and prices[-1].change_percent %}
+                        <span class="{% if prices[-1].change_percent > 0 %}text-success{% elif prices[-1].change_percent < 0 %}text-danger{% endif %}">
+                            {% if prices[-1].change_percent > 0 %}+{% endif %}{{ prices[-1].change_percent }}%
+                        </span>
+                        {% else %}
+                        -
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- 52-week stats -->
+                <hr>
+                <div class="row mb-2">
+                    <div class="col-5 text-muted">52W High</div>
+                    <div class="col-7 text-end" id="stat-52wk-high">Calculating...</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-5 text-muted">52W Low</div>
+                    <div class="col-7 text-end" id="stat-52wk-low">Calculating...</div>
+                </div>
+                <div class="row">
+                    <div class="col-5 text-muted">52W Change</div>
+                    <div class="col-7 text-end" id="stat-52wk-change">Calculating...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="card-title mb-0">Historical Price Data</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Open</th>
+                                <th>High</th>
+                                <th>Low</th>
+                                <th>Close</th>
+                                <th>Volume</th>
+                                <th>Change %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if prices %}
+                                {% for price in prices %}
+                                <tr>
+                                    <td>{{ price.date.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ price.open_price or '-' }}</td>
+                                    <td>{{ price.high_price or '-' }}</td>
+                                    <td>{{ price.low_price or '-' }}</td>
+                                    <td>{{ price.close_price }}</td>
+                                    <td>{{ "{:,.0f}".format(price.volume) if price.volume else '-' }}</td>
+                                    <td class="{% if price.change_percent > 0 %}text-success{% elif price.change_percent < 0 %}text-danger{% endif %}">
+                                        {{ "+" if price.change_percent and price.change_percent > 0 else "" }}{{ price.change_percent }}%
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="7" class="text-center py-4">No price history available for this stock.</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stock data for chart -->
+<script id="priceData" type="application/json">
+    {{ prices|tojson }}
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/stock_detail.js') }}"></script>
+{% endblock %}

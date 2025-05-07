@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Login - African Market Data Platform{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center my-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+                    <h2 class="card-title">Welcome Back</h2>
+                    <p class="text-muted">Sign in to access African market data</p>
+                </div>
+                
+                <form method="POST" action="{{ url_for('login') }}">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="email" name="email" required autofocus>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                        <label class="form-check-label" for="remember">Remember me</label>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Sign In</button>
+                    </div>
+                </form>
+                
+                <div class="text-center mt-4">
+                    <p class="mb-0">Don't have an account? <a href="{{ url_for('register') }}">Sign up</a></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-body p-4">
+                <h5 class="card-title">What You'll Get Access To</h5>
+                <ul class="list-unstyled mt-3">
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Comprehensive financial data from major African exchanges</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Interactive dashboards and analytics</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Daily market summaries and insights</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>API access for incorporating data into your applications</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

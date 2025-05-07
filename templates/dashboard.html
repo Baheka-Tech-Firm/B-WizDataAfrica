@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - African Market Data Platform{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="mb-3">Dashboard</h1>
+        <p class="lead">Your overview of African market performance and key indicators.</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 me-3">
+                        <div class="avatar avatar-lg rounded-circle bg-primary bg-opacity-10 p-2">
+                            <i class="fas fa-exchange-alt text-primary fs-4"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h6 class="card-title mb-0">Stock Exchanges</h6>
+                        <h2 class="my-2" id="exchange-count">{{ exchanges|length }}</h2>
+                        <p class="card-text text-muted small mb-0">Major African exchanges</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 me-3">
+                        <div class="avatar avatar-lg rounded-circle bg-success bg-opacity-10 p-2">
+                            <i class="fas fa-chart-line text-success fs-4"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h6 class="card-title mb-0">Listed Companies</h6>
+                        <h2 class="my-2" id="stocks-count">Loading...</h2>
+                        <p class="card-text text-muted small mb-0">Across all exchanges</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 me-3">
+                        <div class="avatar avatar-lg rounded-circle bg-info bg-opacity-10 p-2">
+                            <i class="fas fa-chart-bar text-info fs-4"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h6 class="card-title mb-0">Market Indices</h6>
+                        <h2 class="my-2" id="indices-count">Loading...</h2>
+                        <p class="card-text text-muted small mb-0">Tracking performance</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 me-3">
+                        <div class="avatar avatar-lg rounded-circle bg-warning bg-opacity-10 p-2">
+                            <i class="fas fa-database text-warning fs-4"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h6 class="card-title mb-0">Data Points</h6>
+                        <h2 class="my-2" id="data-points">Loading...</h2>
+                        <p class="card-text text-muted small mb-0">Historical records</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Market Performance</h5>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="timeframeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Last 7 days
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="timeframeDropdown">
+                            <li><a class="dropdown-item" href="#" data-days="7">Last 7 days</a></li>
+                            <li><a class="dropdown-item" href="#" data-days="30">Last 30 days</a></li>
+                            <li><a class="dropdown-item" href="#" data-days="90">Last 90 days</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="marketPerformanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-transparent border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Exchange Overview</h5>
+                    <button class="btn btn-sm btn-outline-secondary" type="button" id="refreshExchangeBtn">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush" id="exchange-list">
+                    {% for exchange in exchanges %}
+                    <div class="list-group-item bg-transparent">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">{{ exchange.name }}</h6>
+                                <p class="text-muted small mb-0">{{ exchange.country }}</p>
+                            </div>
+                            <span class="badge bg-light text-dark">{{ exchange.currency }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="card-title mb-0">Market Summary</h5>
+            </div>
+            <div class="card-body">
+                <div id="market-summary-preview">
+                    <div class="placeholder-glow">
+                        <p class="placeholder col-9"></p>
+                        <p class="placeholder col-12"></p>
+                        <p class="placeholder col-7"></p>
+                    </div>
+                </div>
+                <div class="d-grid mt-3">
+                    <a href="{{ url_for('market_summary') }}" class="btn btn-sm btn-outline-primary">View Full Summary</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Top Gainers</h5>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="exchangeGainersDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            All Exchanges
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="exchangeGainersDropdown">
+                            <li><a class="dropdown-item" href="#" data-exchange="all">All Exchanges</a></li>
+                            {% for exchange in exchanges %}
+                            <li><a class="dropdown-item" href="#" data-exchange="{{ exchange.code }}">{{ exchange.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-borderless mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Stock</th>
+                                <th>Exchange</th>
+                                <th>Price</th>
+                                <th>Change</th>
+                            </tr>
+                        </thead>
+                        <tbody id="top-gainers-table">
+                            <tr>
+                                <td colspan="4" class="text-center py-3">Loading data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Top Losers</h5>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="exchangeLosersDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            All Exchanges
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="exchangeLosersDropdown">
+                            <li><a class="dropdown-item" href="#" data-exchange="all">All Exchanges</a></li>
+                            {% for exchange in exchanges %}
+                            <li><a class="dropdown-item" href="#" data-exchange="{{ exchange.code }}">{{ exchange.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-borderless mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Stock</th>
+                                <th>Exchange</th>
+                                <th>Price</th>
+                                <th>Change</th>
+                            </tr>
+                        </thead>
+                        <tbody id="top-losers-table">
+                            <tr>
+                                <td colspan="4" class="text-center py-3">Loading data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

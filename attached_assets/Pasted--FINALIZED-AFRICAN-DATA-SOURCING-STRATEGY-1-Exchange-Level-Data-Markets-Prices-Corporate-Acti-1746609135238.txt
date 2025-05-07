@@ -1,0 +1,45 @@
+ FINALIZED AFRICAN DATA SOURCING STRATEGY
+📈 1. Exchange-Level Data (Markets, Prices, Corporate Actions)
+Exchange	What to Scrape / Ingest	How
+JSE	Share prices, indices, company filings (SENS), dividends	Scrape HTML + parse PDF filings
+NGX	Daily price lists, market summaries, announcements	Use Playwright for dynamic content
+BRVM	Quotes, company financials in French	Scrape PDF reports + HTML pages
+NSE (Kenya)	Prices, corporate actions	Scrape market snapshots
+EGX (Egypt)	Prices, IPO data	Extract CSVs or scrape HTML
+Other minor exchanges	PDFs, static pages	Scrape daily or weekly depending on volume
+
+🔧 Tools: Playwright, Scrapy, BeautifulSoup, pdfplumber, Textract, tabula-py
+
+🏦 2. Macroeconomic & Regulatory Data
+Source	Data	How to Get It
+Central banks (SARB, CBN, BoU, BCEAO)	FX rates, interest rates, policy reports	Scrape or download CSV/PDF
+Statistical bureaus	GDP, inflation, population, trade stats	Public downloads or scrape
+IMF / World Bank	Standardized economic data (free)	Use their APIs (JSON/CSV)
+AFDB (African Development Bank)	Sector data (infra, agriculture)	Download from open portal
+
+🔧 Tools: requests, pandas, pydantic, IMF/World Bank APIs
+
+🧾 3. Company-Level Data (Filings, Financials, News)
+Source	What	How
+Company investor websites	Reports, earnings, dividends	Crawl for PDF files & parse
+SECs or regulators (e.g., SEC Nigeria, CMA Kenya)	Compliance docs	Scrape portals & track updates
+News sites (TechCabal, Moneyweb, BusinessDay)	Business sentiment, M&A rumors	Use RSS + NLP for summaries
+
+🔧 Tools: newspaper3k, feedparser, spaCy, transformers, LangChain
+
+🛠️ 4. Infrastructure Suggestions
+Component	Recommended Tools
+Scraping Engine	Playwright (JS-heavy), Scrapy (fast), Puppeteer
+PDF Extraction	pdfplumber, AWS Textract, Tika, GROBID
+ETL Pipelines	Apache Airflow, Dagster, Prefect
+Storage	PostgreSQL (structured), S3/MinIO (raw), ClickHouse (time series)
+APIs	FastAPI, GraphQL via Hasura
+Dashboard	React + Next.js, Superset, Metabase
+
+💡 Strategy Tips
+Start with high-visibility countries: South Africa, Nigeria, Kenya, Egypt, Ghana
+
+Focus on coverage gaps (e.g., JSE small caps, West Africa equities, FX rates in CFA Franc zones)
+
+Offer cleaned, normalized datasets that others don’t (e.g., daily updated CSVs, dividends API)
+

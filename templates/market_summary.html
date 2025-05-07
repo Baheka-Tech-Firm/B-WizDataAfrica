@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Market Summary - African Market Data Platform{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="mb-3">Market Summary</h1>
+        <p class="lead">Daily summaries and analysis of African financial markets.</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Recent Summaries</h5>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="summaryDateDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Select Date
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="summaryDateDropdown">
+                            {% for summary in summaries %}
+                            <li><a class="dropdown-item" href="#" data-summary-id="{{ summary.id }}">{{ summary.date.strftime('%d %b %Y') }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if summaries %}
+                <div id="current-summary">
+                    <h3 class="mb-3">{{ summaries[0].title }}</h3>
+                    
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="me-4">
+                            <span class="badge bg-primary">{{ summaries[0].date.strftime('%A, %d %B %Y') }}</span>
+                        </div>
+                        <div class="small text-muted">
+                            Generated on {{ summaries[0].created_at.strftime('%d %b %Y at %H:%M') }}
+                        </div>
+                    </div>
+                    
+                    {% if summaries[0].highlights %}
+                    <div class="card bg-dark mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-star me-2"></i>Market Highlights</h5>
+                            <div class="highlights-section">
+                                {{ summaries[0].highlights|nl2br|safe }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="summary-content">
+                        {{ summaries[0].content|nl2br|safe|markdown }}
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-file-alt fa-3x mb-3 text-muted"></i>
+                    <p class="lead">No market summaries available.</p>
+                    <p class="text-muted">Summaries are generated daily after market close.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="card-title mb-0">Summary Archive</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for summary in summaries %}
+                    <a href="#" class="list-group-item list-group-item-action bg-transparent summary-link" data-summary-id="{{ summary.id }}">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <h6 class="mb-1">{{ summary.date.strftime('%A, %d %B %Y') }}</h6>
+                            <small class="text-muted">{{ summary.date.strftime('%d/%m/%Y') }}</small>
+                        </div>
+                        <p class="mb-1 text-truncate">{{ summary.title }}</p>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="card-title mb-0">Market Indicators</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="position: relative; height:300px;">
+                    <canvas id="marketIndicatorsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Summary data -->
+<script id="summaryData" type="application/json">
+    {{ summaries|tojson }}
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/market_summary.js') }}"></script>
+{% endblock %}

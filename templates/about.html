@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block title %}About | African Market Data Platform{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <h1 class="mb-4">About the African Market Data Platform</h1>
+        
+        <div class="card bg-dark mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Our Mission</h5>
+                <p class="card-text">
+                    The African Market Data Platform is dedicated to democratizing access to high-quality, 
+                    reliable financial and macroeconomic data from African markets. We aim to empower 
+                    investors, analysts, fintechs, researchers, and other financial stakeholders with 
+                    the accurate information they need to make informed decisions.
+                </p>
+            </div>
+        </div>
+        
+        <h3 class="mb-3">What We Offer</h3>
+        
+        <div class="row mb-4">
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 bg-dark">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-primary rounded-circle p-3 me-3">
+                                <i class="fas fa-chart-line text-white"></i>
+                            </div>
+                            <h5 class="card-title mb-0">Comprehensive Market Data</h5>
+                        </div>
+                        <p class="card-text">
+                            Access financial data from major African exchanges including JSE (South Africa), 
+                            NGX (Nigeria), and BRVM (West Africa). Get historical price data, indices, 
+                            company information, and more.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 bg-dark">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-success rounded-circle p-3 me-3">
+                                <i class="fas fa-file-alt text-white"></i>
+                            </div>
+                            <h5 class="card-title mb-0">Daily Market Summaries</h5>
+                        </div>
+                        <p class="card-text">
+                            Stay informed with our comprehensive daily market summaries that analyze 
+                            market movements, highlight top performers, and provide insights into 
+                            market sentiment across African exchanges.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 bg-dark">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-info rounded-circle p-3 me-3">
+                                <i class="fas fa-code text-white"></i>
+                            </div>
+                            <h5 class="card-title mb-0">API Access</h5>
+                        </div>
+                        <p class="card-text">
+                            Integrate African market data into your own applications with our 
+                            comprehensive API. Access endpoints for exchanges, tickers, prices, 
+                            indices, and macroeconomic indicators.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 bg-dark">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-warning rounded-circle p-3 me-3">
+                                <i class="fas fa-bell text-white"></i>
+                            </div>
+                            <h5 class="card-title mb-0">Customizable Alerts</h5>
+                        </div>
+                        <p class="card-text">
+                            Set up personalized alerts based on price movements, earnings releases, 
+                            or macroeconomic data to stay on top of market changes and opportunities.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <h3 class="mb-3">Our Data Sources</h3>
+        
+        <div class="card bg-dark mb-4">
+            <div class="card-body">
+                <p class="card-text">
+                    We collect data from multiple authoritative sources to ensure comprehensiveness and accuracy:
+                </p>
+                
+                <ul class="list-group list-group-flush bg-dark mb-3">
+                    <li class="list-group-item bg-dark">
+                        <strong>Stock Exchange Websites</strong> - Direct data from JSE, NGX, BRVM, and other African exchanges
+                    </li>
+                    <li class="list-group-item bg-dark">
+                        <strong>Central Bank Data</strong> - Monetary policy information, interest rates, and forex data
+                    </li>
+                    <li class="list-group-item bg-dark">
+                        <strong>Company Investor Relations</strong> - Earnings reports, corporate actions, and announcements
+                    </li>
+                    <li class="list-group-item bg-dark">
+                        <strong>African News Sources</strong> - Market news and sentiment analysis
+                    </li>
+                    <li class="list-group-item bg-dark">
+                        <strong>Statistical Agencies</strong> - Macroeconomic indicators and demographic data
+                    </li>
+                </ul>
+                
+                <p class="card-text">
+                    All data is collected and processed through our ETL pipeline to ensure quality, 
+                    consistency, and timeliness before being made available on our platform.
+                </p>
+            </div>
+        </div>
+        
+        <h3 class="mb-3">Data Coverage</h3>
+        
+        <div class="row mb-4">
+            <div class="col-md-4 mb-4">
+                <div class="card bg-dark h-100">
+                    <div class="card-header bg-dark">
+                        <h5 class="mb-0">JSE</h5>
+                        <div class="text-muted small">Johannesburg Stock Exchange</div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check-circle text-success me-2"></i> Equities</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i> Market indices</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i> SENS announcements</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i> Corporate actions</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card bg-dark h-100">
+                    <div class="card-header bg-dark">
+                        <h5 class="mb-0">NGX</h5>
+                        <div class="text-muted small">Nigerian Exchange Group</div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check-circle text-success me-2"></i> Equities</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i> Market indices</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i> Sector performance</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i> Company filings</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card bg-dark h-100">
+                    <div class="card-header bg-dark">
+                        <h5 class="mb-0">BRVM</h5>
+                        <div class="text-muted small">Bourse Régionale des Valeurs Mobilières</div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check-circle text-success me-2"></i> Equities</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i> BRVM Composite Index</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i> BRVM 10 Index</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i> Corporate information</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <h3 class="mb-3">Our Team</h3>
+        
+        <div class="card bg-dark mb-4">
+            <div class="card-body">
+                <p class="card-text">
+                    The African Market Data Platform is built by a dedicated team of financial analysts, 
+                    data scientists, and software engineers with deep expertise in African markets. 
+                    Our team is passionate about improving data accessibility and financial literacy 
+                    across the continent.
+                </p>
+                
+                <p class="card-text mb-0">
+                    We are constantly working to expand our coverage, improve our data quality, 
+                    and develop new features to better serve our users. If you have any suggestions 
+                    or feedback, please don't hesitate to contact us.
+                </p>
+            </div>
+        </div>
+        
+        <h3 class="mb-3">Contact Us</h3>
+        
+        <div class="card bg-dark mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>General Inquiries</h5>
+                        <p><i class="fas fa-envelope me-2"></i> info@africanmarketdata.com</p>
+                        <p><i class="fas fa-phone me-2"></i> +27 (0) 21 000 0000</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Technical Support</h5>
+                        <p><i class="fas fa-envelope me-2"></i> support@africanmarketdata.com</p>
+                        <p><i class="fas fa-phone me-2"></i> +27 (0) 21 000 0001</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
