@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+
+{% block title %}API Documentation - African Market Data Platform{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('api_tokens') }}">API Tokens</a></li>
+                <li class="breadcrumb-item active" aria-current="page">API Documentation</li>
+            </ol>
+        </nav>
+        <h1 class="mb-3">API Documentation</h1>
+        <p class="lead">Access African market data programmatically using our REST API.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm mb-4 sticky-top" style="top: 20px; z-index: 1;">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="card-title mb-0">Contents</h5>
+            </div>
+            <div class="card-body">
+                <nav id="api-toc" class="nav flex-column">
+                    <a class="nav-link" href="#getting-started">Getting Started</a>
+                    <a class="nav-link" href="#authentication">Authentication</a>
+                    <a class="nav-link" href="#rate-limits">Rate Limits</a>
+                    <a class="nav-link" href="#endpoints">Endpoints</a>
+                    <div class="ps-3">
+                        <a class="nav-link" href="#exchanges">Exchanges</a>
+                        <a class="nav-link" href="#stocks">Stocks</a>
+                        <a class="nav-link" href="#prices">Stock Prices</a>
+                        <a class="nav-link" href="#indices">Indices</a>
+                        <a class="nav-link" href="#macro">Macro Indicators</a>
+                        <a class="nav-link" href="#market-summaries">Market Summaries</a>
+                    </div>
+                    <a class="nav-link" href="#error-handling">Error Handling</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <section id="getting-started">
+                    <h2 class="mb-3">Getting Started</h2>
+                    <p>The African Market Data Platform API provides programmatic access to financial data from African markets, including stock prices, indices, and macroeconomic indicators.</p>
+                    <p>Base URL: <code>{{ request.host_url }}api/v1</code></p>
+                </section>
+                
+                <section id="authentication" class="mt-5">
+                    <h2 class="mb-3">Authentication</h2>
+                    <p>All API requests require authentication using an API token. To authenticate, include your token in the request header:</p>
+                    <pre class="bg-dark text-light p-3 rounded"><code>X-API-Token: your_token_here</code></pre>
+                    <p>You can generate API tokens from your <a href="{{ url_for('api_tokens') }}">API Tokens</a> page.</p>
+                </section>
+                
+                <section id="rate-limits" class="mt-5">
+                    <h2 class="mb-3">Rate Limits</h2>
+                    <p>API requests are limited to 100 requests per minute per user. If you exceed this limit, you'll receive a 429 Too Many Requests response.</p>
+                </section>
+                
+                <section id="endpoints" class="mt-5">
+                    <h2 class="mb-3">Endpoints</h2>
+                    
+                    <section id="exchanges" class="mt-4">
+                        <h3 class="mb-3">Exchanges</h3>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header bg-dark">
+                                <span class="badge bg-primary me-2">GET</span>
+                                <code>/exchanges</code>
+                            </div>
+                            <div class="card-body">
+                                <p>Get a list of all available exchanges.</p>
+                                <h5>Response Example:</h5>
+                                <pre class="bg-dark text-light p-3 rounded"><code>[
+  {
+    "id": 1,
+    "name": "Johannesburg Stock Exchange",
+    "code": "JSE",
+    "country": "South Africa",
+    "currency": "ZAR",
+    "website": "https://www.jse.co.za",
+    "timezone": "Africa/Johannesburg"
+  },
+  {
+    "id": 2,
+    "name": "Nigerian Exchange Group",
+    "code": "NGX",
+    "country": "Nigeria",
+    "currency": "NGN",
+    "website": "https://ngxgroup.com",
+    "timezone": "Africa/Lagos"
+  }
+]</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header bg-dark">
+                                <span class="badge bg-primary me-2">GET</span>
+                                <code>/exchanges/{code}</code>
+                            </div>
+                            <div class="card-body">
+                                <p>Get information about a specific exchange.</p>
+                                <h5>Path Parameters:</h5>
+                                <ul>
+                                    <li><code>code</code> - Exchange code (e.g., JSE, NGX, BRVM)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <section id="stocks" class="mt-4">
+                        <h3 class="mb-3">Stocks</h3>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header bg-dark">
+                                <span class="badge bg-primary me-2">GET</span>
+                                <code>/stocks</code>
+                            </div>
+                            <div class="card-body">
+                                <p>Get a list of stocks with optional filtering.</p>
+                                <h5>Query Parameters:</h5>
+                                <ul>
+                                    <li><code>exchange</code> - Filter by exchange code</li>
+                                    <li><code>sector</code> - Filter by sector</li>
+                                    <li><code>ticker</code> - Filter by ticker (partial match)</li>
+                                    <li><code>limit</code> - Maximum number of results (default: 100)</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header bg-dark">
+                                <span class="badge bg-primary me-2">GET</span>
+                                <code>/stocks/{exchange_code}/{ticker}</code>
+                            </div>
+                            <div class="card-body">
+                                <p>Get information about a specific stock.</p>
+                                <h5>Path Parameters:</h5>
+                                <ul>
+                                    <li><code>exchange_code</code> - Exchange code (e.g., JSE, NGX)</li>
+                                    <li><code>ticker</code> - Stock ticker symbol</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <section id="prices" class="mt-4">
+                        <h3 class="mb-3">Stock Prices</h3>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header bg-dark">
+                                <span class="badge bg-primary me-2">GET</span>
+                                <code>/stocks/{exchange_code}/{ticker}/prices</code>
+                            </div>
+                            <div class="card-body">
+                                <p>Get price history for a specific stock.</p>
+                                <h5>Path Parameters:</h5>
+                                <ul>
+                                    <li><code>exchange_code</code> - Exchange code (e.g., JSE, NGX)</li>
+                                    <li><code>ticker</code> - Stock ticker symbol</li>
+                                </ul>
+                                <h5>Query Parameters:</h5>
+                                <ul>
+                                    <li><code>start_date</code> - Start date in YYYY-MM-DD format</li>
+                                    <li><code>end_date</code> - End date in YYYY-MM-DD format</li>
+                                    <li><code>limit</code> - Maximum number of results (default: 30)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <section id="indices" class="mt-4">
+                        <h3 class="mb-3">Indices</h3>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header bg-dark">
+                                <span class="badge bg-primary me-2">GET</span>
+                                <code>/indices</code>
+                            </div>
+                            <div class="card-body">
+                                <p>Get a list of market indices with optional filtering.</p>
+                                <h5>Query Parameters:</h5>
+                                <ul>
+                                    <li><code>exchange</code> - Filter by exchange code</li>
+                                    <li><code>limit</code> - Maximum number of results (default: 100)</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header bg-dark">
+                                <span class="badge bg-primary me-2">GET</span>
+                                <code>/indices/{exchange_code}/{code}</code>
+                            </div>
+                            <div class="card-body">
+                                <p>Get information about a specific index.</p>
+                                <h5>Path Parameters:</h5>
+                                <ul>
+                                    <li><code>exchange_code</code> - Exchange code (e.g., JSE, NGX)</li>
+                                    <li><code>code</code> - Index code (e.g., ALSI, ASI)</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header bg-dark">
+                                <span class="badge bg-primary me-2">GET</span>
+                                <code>/indices/{exchange_code}/{code}/values</code>
+                            </div>
+                            <div class="card-body">
+                                <p>Get value history for a specific index.</p>
+                                <h5>Path Parameters:</h5>
+                                <ul>
+                                    <li><code>exchange_code</code> - Exchange code (e.g., JSE, NGX)</li>
+                                    <li><code>code</code> - Index code (e.g., ALSI, ASI)</li>
+                                </ul>
+                                <h5>Query Parameters:</h5>
+                                <ul>
+                                    <li><code>start_date</code> - Start date in YYYY-MM-DD format</li>
+                                    <li><code>end_date</code> - End date in YYYY-MM-DD format</li>
+                                    <li><code>limit</code> - Maximum number of results (default: 30)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <section id="macro" class="mt-4">
+                        <h3 class="mb-3">Macro Indicators</h3>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header bg-dark">
+                                <span class="badge bg-primary me-2">GET</span>
+                                <code>/macro-indicators</code>
+                            </div>
+                            <div class="card-body">
+                                <p>Get a list of macroeconomic indicators with optional filtering.</p>
+                                <h5>Query Parameters:</h5>
+                                <ul>
+                                    <li><code>country</code> - Filter by country</li>
+                                    <li><code>category</code> - Filter by category (e.g., GDP, Inflation, FX)</li>
+                                    <li><code>limit</code> - Maximum number of results (default: 100)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <section id="market-summaries" class="mt-4">
+                        <h3 class="mb-3">Market Summaries</h3>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header bg-dark">
+                                <span class="badge bg-primary me-2">GET</span>
+                                <code>/market-summaries</code>
+                            </div>
+                            <div class="card-body">
+                                <p>Get recent market summaries.</p>
+                                <h5>Query Parameters:</h5>
+                                <ul>
+                                    <li><code>limit</code> - Maximum number of results (default: 10)</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header bg-dark">
+                                <span class="badge bg-primary me-2">GET</span>
+                                <code>/market-summaries/{date}</code>
+                            </div>
+                            <div class="card-body">
+                                <p>Get a market summary for a specific date.</p>
+                                <h5>Path Parameters:</h5>
+                                <ul>
+                                    <li><code>date</code> - Date in YYYY-MM-DD format</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+                </section>
+                
+                <section id="error-handling" class="mt-5">
+                    <h2 class="mb-3">Error Handling</h2>
+                    <p>The API uses conventional HTTP response codes to indicate the success or failure of an API request.</p>
+                    <ul>
+                        <li><code>200 OK</code> - The request was successful</li>
+                        <li><code>400 Bad Request</code> - The request was invalid</li>
+                        <li><code>401 Unauthorized</code> - Authentication failed or token missing</li>
+                        <li><code>404 Not Found</code> - The requested resource was not found</li>
+                        <li><code>429 Too Many Requests</code> - Rate limit exceeded</li>
+                        <li><code>500 Internal Server Error</code> - An error occurred on the server</li>
+                    </ul>
+                    <p>Error responses include a JSON body with an <code>error</code> field containing a human-readable error message:</p>
+                    <pre class="bg-dark text-light p-3 rounded"><code>{
+  "error": "Invalid or expired API token"
+}</code></pre>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Activate the correct nav link based on scroll position
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get all sections and nav links
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('#api-toc a');
+        
+        // Add scroll event listener
+        window.addEventListener('scroll', function() {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

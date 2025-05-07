@@ -1,11 +1,14 @@
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import User, Stock, StockPrice, Exchange, MarketSummary
+from models import User, Stock, StockPrice, Exchange, MarketSummary, APIToken
 from app import db
+from datetime import datetime, timedelta
+from api.auth import TokenAuth
 import logging
 
 logger = logging.getLogger(__name__)
+token_auth = TokenAuth()
 
 def configure_routes(app):
     @app.route('/')
@@ -104,6 +107,68 @@ def configure_routes(app):
     def logout():
         logout_user()
         return redirect(url_for('index'))
+        
+    @app.route('/api-tokens', methods=['GET'])
+    @login_required
+    def api_tokens():
+        """View and manage API tokens."""
+        # Get user's tokens
+        tokens = APIToken.query.filter_by(user_id=current_user.id).order_by(APIToken.created_at.desc()).all()
+        
+        # Check for new token from session
+        new_token = request.args.get('new_token')
+        token_expires = None
+        
+        if new_token:
+            token_expires_str = request.args.get('expires')
+            if token_expires_str:
+                try:
+                    token_expires = datetime.fromisoformat(token_expires_str)
+                except ValueError:
+                    # If date parsing fails, use a default expiration
+                    token_expires = datetime.utcnow() + timedelta(days=7)
+        
+        return render_template('api_token.html', tokens=tokens, new_token=new_token, token_expires=token_expires)
+    
+    @app.route('/api-tokens/generate', methods=['POST'])
+    @login_required
+    def generate_token():
+        """Generate a new API token."""
+        # Get expiration time from form
+        expiration = request.form.get('expiration')
+        expiration_seconds = int(expiration) if expiration else 604800  # Default to 7 days
+        
+        # Generate token
+        token = token_auth.generate_token(current_user, expiration=expiration_seconds)
+        
+        # Calculate expiration datetime
+        expires_at = datetime.utcnow() + timedelta(seconds=expiration_seconds)
+        
+        flash('New API token generated successfully.', 'success')
+        return redirect(url_for('api_tokens', new_token=token, expires=expires_at.isoformat()))
+    
+    @app.route('/api-tokens/revoke/<int:token_id>', methods=['POST'])
+    @login_required
+    def revoke_token(token_id):
+        """Revoke an API token."""
+        token = APIToken.query.get_or_404(token_id)
+        
+        # Ensure the token belongs to the current user
+        if token.user_id != current_user.id:
+            flash('You do not have permission to revoke this token.', 'danger')
+            return redirect(url_for('api_tokens'))
+        
+        # Revoke the token
+        token_auth.revoke_token(token.token)
+        
+        flash('API token revoked successfully.', 'success')
+        return redirect(url_for('api_tokens'))
+        
+    @app.route('/api-docs')
+    @login_required
+    def api_docs():
+        """View API documentation."""
+        return render_template('api_docs.html')
 
     @app.errorhandler(404)
     def page_not_found(e):
